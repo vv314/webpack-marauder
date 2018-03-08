@@ -1,14 +1,11 @@
 'use strict'
 
 const chalk = require('chalk')
-const { prompt, Separator } = require('inquirer')
-const config = require('../config')
+const { prompt } = require('inquirer')
+const paths = require('../config/paths')
 const { getPageList } = require('./utils')
 
-const args = process.argv.slice(2)
-const pages = getPageList(config.paths.entries)
-
-// console.log(args)
+const pages = getPageList(paths.entries)
 
 // TL
 // 识别 entry, branch
@@ -35,34 +32,34 @@ function empty() {
   process.exit(1)
 }
 
-async function getEntry() {
+async function getEntry(entryArgs) {
   if (!pages.length) {
     empty()
   } else if (pages.length === 1) {
-    return chooseOne()
+    return chooseOne(entryArgs)
   } else {
-    return chooseMany()
+    return chooseMany(entryArgs)
   }
 }
 
-function result(entry = '') {
-  return Promise.resolve({ entry, trunk: args[1] })
+function result(entry = '', trunk = '') {
+  return Promise.resolve({ entry, trunk })
 }
 
-function chooseOne() {
-  const illegalInput = args.length && !validEntry(args[0])
+function chooseOne(entryArgs) {
+  const illegalInput = entryArgs.length && !validEntry(entryArgs[0])
 
   if (illegalInput) {
     return chooseEntry('您输入的页面有误, 请选择:')
   } else {
-    return result(pages[0])
+    return result(pages[0], entryArgs[1])
   }
 }
 
-function chooseMany() {
-  if (validEntry(args[0])) return result(args[0])
+function chooseMany(entryArgs) {
+  if (validEntry(entryArgs[0])) return result(entryArgs[0])
 
-  return chooseEntry(args.length && '您输入的页面有误, 请选择:')
+  return chooseEntry(entryArgs.length && '您输入的页面有误, 请选择:')
 }
 
 function validEntry(entry) {
@@ -71,7 +68,6 @@ function validEntry(entry) {
 
 async function chooseEntry(msg) {
   const list = [...pages]
-  // const list = [...pages, new Separator(), { name: 'exit', value: '' }]
   const question = {
     type: 'list',
     name: 'entry',

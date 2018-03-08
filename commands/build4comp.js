@@ -13,17 +13,17 @@ const path = require('path')
 const chalk = require('chalk')
 const ora = require('ora')
 const webpack = require('webpack')
-const { getPageList } = require('../libs/utils')
-const config = require('../config')
+const { getPageList } = require('../build/libs/utils')
+const config = require('../build/config')
 const paths = config.paths
 const maraConf = require(paths.marauder)
-const getWebpackProdConf = require('../webpack/webpack.prod.conf')
-const getWebpackLibConf = require('../webpack/webpack.lib.conf')
+const getWebpackProdConf = require('../build/webpack/webpack.prod.conf')
+const getWebpackLibConf = require('../build/webpack/webpack.lib.conf')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const printBuildError = require('../libs/printBuildError')
-const buildReporter = require('../libs/buildReporter')
-const prehandleConfig = require('../libs/prehandleConfig')
-const Stopwatch = require('../libs/Stopwatch')
+const printBuildError = require('../build/libs/printBuildError')
+const buildReporter = require('../build/libs/buildReporter')
+const prehandleConfig = require('../build/libs/prehandleConfig')
+const Stopwatch = require('../build/libs/Stopwatch')
 
 const spinner = ora('Biuld library (commonjs + umd)...')
 spinner.start()
@@ -128,10 +128,13 @@ function error(err) {
   process.exit(1)
 }
 
-clean({
-  distDir: paths.dist,
-  libDir: paths.lib
-})
-  .then(build)
-  .then(success)
-  .catch(error)
+module.exports = function({ args }) {
+  clean({
+    distDir: paths.dist,
+    libDir: paths.lib
+  })
+    .then(build)
+    .then(success)
+    .catch(error)
+}
+

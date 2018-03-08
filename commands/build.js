@@ -13,17 +13,17 @@ const chalk = require('chalk')
 const path = require('path')
 const ora = require('ora')
 const webpack = require('webpack')
-const getEntry = require('../libs/entry')
-const ftpUpload = require('../libs/ftp')
-const config = require('../config')
+// const getEntry = require('../libs/entry')
+const ftpUpload = require('../build/libs/ftp')
+const config = require('../build/config')
 const paths = config.paths
-const getWebpackConfig = require('../webpack/webpack.prod.conf')
+const getWebpackConfig = require('../build/webpack/webpack.prod.conf')
 const maraConf = require(paths.marauder)
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const Hybrid = require('../libs/hybrid')
-const printBuildError = require('../libs/printBuildError')
-const buildReporter = require('../libs/buildReporter')
-const prehandleConfig = require('../libs/prehandleConfig')
+const Hybrid = require('../build/libs/hybrid')
+const printBuildError = require('../build/libs/printBuildError')
+const buildReporter = require('../build/libs/buildReporter')
+const prehandleConfig = require('../build/libs/prehandleConfig')
 const VERSION = process.env.npm_package_version
 
 // These sizes are pretty large. We'll warn for bundles exceeding them.
@@ -148,16 +148,14 @@ function error(err) {
   process.exit(1)
 }
 
-function setup(entry) {
-  entryInput = entry
+module.exports = function({ inputEntry, args } = {}) {
+  entryInput = inputEntry
   spinner.start()
-}
 
-getEntry()
-  .then(setup)
-  .then(clean)
-  .then(build)
-  .then(success)
-  .then(ftp)
-  .then(hybrid)
-  .catch(error)
+  clean()
+    .then(build)
+    .then(success)
+    .then(ftp)
+    .then(hybrid)
+    .catch(error)
+}

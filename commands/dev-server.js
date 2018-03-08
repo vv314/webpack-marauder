@@ -7,9 +7,8 @@ process.on('unhandledRejection', err => {
   throw err
 })
 
-const config = require('../config')
-const { getFreePort } = require('../libs/utils')
-const getEntry = require('../libs/entry')
+const config = require('../build/config')
+const { getFreePort } = require('../build/libs/utils')
 const maraConf = require(config.paths.marauder)
 const clearConsole = require('react-dev-utils/clearConsole')
 
@@ -17,9 +16,9 @@ const clearConsole = require('react-dev-utils/clearConsole')
 const isInteractive = process.stdout.isTTY
 
 const webpack = require('webpack')
-const getWebpackConfig = require('../webpack/webpack.dev.conf')
-const prehandleConfig = require('../libs/prehandleConfig')
-const progressHandler = require('../libs/buildProgress')
+const getWebpackConfig = require('../build/webpack/webpack.dev.conf')
+const prehandleConfig = require('../build/libs/prehandleConfig')
+const progressHandler = require('../build/libs/buildProgress')
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || config.dev.port
 const PROTOCOL = maraConf.https === true ? 'https' : 'http'
 
@@ -31,7 +30,6 @@ async function getCompiler(webpackConf, { entry, port } = {}) {
   const openBrowser = require('react-dev-utils/openBrowser')
   const hostUri = getServerHostUri(webpackConf.devServer.host, port)
   const compiler = webpack(webpackConf)
-  let lineCaretPosition = 0
   let isFirstCompile = true
 
   compiler.apply(
@@ -103,13 +101,13 @@ function getServerURL(hostUri, entry) {
   return `${hostUri + publicDevPath + entry}.html`
 }
 
-async function server(entryInput) {
+module.exports = async function({ inputEntry, args } = {}) {
   console.log('> Starting development server...')
 
-  const webpackConf = prehandleConfig('dev', getWebpackConfig(entryInput))
+  const webpackConf = prehandleConfig('dev', getWebpackConfig(inputEntry))
   const port = await getFreePort(DEFAULT_PORT)
   const devServer = await createDevServer(webpackConf, {
-    entry: entryInput.entry,
+    entry: inputEntry.entry,
     port
   })
   ;['SIGINT', 'SIGTERM'].forEach(sig => {
@@ -124,5 +122,3 @@ async function server(entryInput) {
     if (err) return console.log(err)
   })
 }
-
-getEntry().then(server)

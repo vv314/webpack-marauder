@@ -6,25 +6,25 @@ process.env.NODE_ENV = 'production'
 
 const fs = require('fs-extra')
 const chalk = require('chalk')
-const { entry, ftpBranch } = require('../libs/entry')
+const { entry, ftpBranch } = require('../build/libs/entry')
 
 const ora = require('ora')
 const webpack = require('webpack')
-const ftpUpload = require('../libs/ftp')
-const config = require('../config')
+const ftpUpload = require('../build/libs/ftp')
+const config = require('../build/config')
 const paths = config.paths
-let webpackConfig = require('../webpack/webpack.prod.conf')(entry)
+let webpackConfig = require('../build/webpack/webpack.prod.conf')(entry)
 const maraConf = require(paths.marauder)
 const printBuildError = require('react-dev-utils/printBuildError')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const VERSION = process.env.npm_package_version
-const prehandleConfig = require('../libs/prehandleConfig');
+const prehandleConfig = require('../build/libs/prehandleConfig')
 
 const spinner = ora('building for production...')
 spinner.start()
 
 function build() {
-	webpackConfig = prehandleConfig('test',webpackConfig);
+  webpackConfig = prehandleConfig('test', webpackConfig)
   const compiler = webpack(webpackConfig)
 
   compiler.plugin('compilation', compilation => {

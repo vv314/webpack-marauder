@@ -9,8 +9,8 @@ process.on('unhandledRejection', err => {
 })
 
 const chalk = require('chalk')
-const config = require('../config')
-const { isObject, isNotEmptyArray } = require('../libs/utils')
+const config = require('../build/config')
+const { isObject, isNotEmptyArray } = require('../build/libs/utils')
 const paths = config.paths
 const vendorConf = require(paths.marauder).vendor || []
 
@@ -35,11 +35,11 @@ const fs = require('fs-extra')
 const input = require('yargs').argv._
 const ora = require('ora')
 const webpack = require('webpack')
-const ftpUpload = require('../libs/ftp')
+const ftpUpload = require('../build/libs/ftp')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const printBuildError = require('../libs/printBuildError')
-const prehandleConfig = require('../libs/prehandleConfig')
-let webpackDllConfig = require('../webpack/webpack.dll.conf')()
+const printBuildError = require('../build/libs/printBuildError')
+const prehandleConfig = require('../build/libs/prehandleConfig')
+let webpackDllConfig = require('../build/webpack/webpack.dll.conf')()
 
 const spinner = ora('Building dll...')
 spinner.start()
@@ -93,24 +93,26 @@ function errorLog(err) {
   process.exit(1)
 }
 
-build()
-  .then(output => {
-    // webpack 打包结果统计
-    process.stdout.write(
-      output.stats.toString({
-        colors: true,
-        modules: false,
-        children: false,
-        chunks: false,
-        chunkModules: false
-      }) + '\n\n'
-    )
+module.exports = function({ args }) {
+  build()
+    .then(output => {
+      // webpack 打包结果统计
+      process.stdout.write(
+        output.stats.toString({
+          colors: true,
+          modules: false,
+          children: false,
+          chunks: false,
+          chunkModules: false
+        }) + '\n\n'
+      )
 
-    console.log(chalk.cyan('  DLL Build complete.\n'))
+      console.log(chalk.cyan('  DLL Build complete.\n'))
 
-    console.log(
-      chalk.yellow('  Tip: DLL bundle is change, please rebuild your app.\n')
-    )
-  })
-  .then(ftp)
-  .catch(errorLog)
+      console.log(
+        chalk.yellow('  Tip: DLL bundle is change, please rebuild your app.\n')
+      )
+    })
+    .then(ftp)
+    .catch(errorLog)
+}
